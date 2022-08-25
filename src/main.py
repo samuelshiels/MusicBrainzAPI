@@ -1,6 +1,7 @@
 import getRestData
 import json
 from RESTObject import RESTObject as ro
+import LinuxHelper as lh
 
 rootURL = 'https://musicbrainz.org/ws/2/'
 #Provide a User-Agent so they can contact us if something goes wrong
@@ -10,9 +11,9 @@ sleep = 100
 #cache time, in mins, for api calls to refresh cached data, we keep anything for 1 week since I have some obscure bands that may suddenly get their catalog updated
 time = 10080
 #root cache directory
-cache = 'cache/'
+cache = lh.getHomeDirectory() + '/' + lh.getCacheDirectory() + 'MusicBrainzAPI/'
 
-def buildHeaderObj():
+def __buildHeaderObj():
     global userAgent
     headers = {}
     headers['User-Agent'] = userAgent
@@ -20,12 +21,12 @@ def buildHeaderObj():
     headers['Accept'] = 'application/json'
     return headers
 
-def runRest(e, p, o, c):
+def __runRest(e, p, o, c):
     global rootURL
     global cache
     global time
     global sleep
-    restObj = ro(operation='get', endpoint=rootURL + e,params=p,headers=buildHeaderObj(),payload={})
+    restObj = ro(operation='get', endpoint=rootURL + e,params=p,headers=__buildHeaderObj(),payload={})
     config = {}
 
     config['output'] = o + '.json'
@@ -36,12 +37,12 @@ def runRest(e, p, o, c):
     return getRestData.execute(config)
 
 def getArtistByMBID(mbid):
-    return runRest('artist/' + mbid, {'inc':'aliases'}, mbid, 'artist')
+    return __runRest('artist/' + mbid, {'inc':'aliases'}, mbid, 'artist')
     pass
 
 def getReleasesByArtist(mbid):
     #contains property 'release-groups'
-    return runRest('artist/' + mbid, {'inc':'aliases+release-groups'}, mbid, 'releases')
+    return __runRest('artist/' + mbid, {'inc':'aliases+release-groups'}, mbid, 'releases')
     pass
 
 def main():
