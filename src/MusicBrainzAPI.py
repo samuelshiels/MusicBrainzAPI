@@ -1,17 +1,38 @@
 import getRestData
 import json
 from RESTObject import RESTObject as ro
-import LinuxHelper as lh
+from pathlib import Path
 
-rootURL = 'https://musicbrainz.org/ws/2/'
-#Provide a User-Agent so they can contact us if something goes wrong
-userAgent = 'MusicBrainzAPI/0.1 (https://github.com/samuelshiels/MusicBrainzAPI)'
+appName = 'MusicBrainzAPI'
 #sleep time, in ms, between any api calls, MB allow up to 50/s but we only need 10 for now. 2023 - Re-read rules and its 1/s
 sleep = 1100
 #cache time, in mins, for api calls to refresh cached data, we keep anything for 1 week since I have some obscure bands that may suddenly get their catalog updated
 time = 10800
 #root cache directory
-cache = lh.getHomeDirectory() + '/' + lh.getCacheDirectory() + 'MusicBrainzAPI/'
+cache = f'{Path.home}/.cache/{appName}/'
+
+import os
+ae = {}
+ae['app_name'] = appName
+ae['version'] = '0.1.0'
+ae['root_dir'] = os.path.join(str(Path.home()), ".config/", ae['app_name'])
+ae['cache_dir'] = os.path.join(str(Path.home()), '.cache', ae['app_name'])
+ae['sleep'] = sleep
+ae['time'] = time
+
+rootURL = 'https://musicbrainz.org/ws/2/'
+#Provide a User-Agent so they can contact us if something goes wrong
+userAgent = 'MusicBrainzAPI/0.1 (https://github.com/samuelshiels/MusicBrainzAPI)'
+
+import logging
+logging.basicConfig(
+format='%(asctime)s | %(levelname)s | %(message)s', level=logging.DEBUG)
+debug = True
+def __debugMessage(message):
+	global debug
+	if debug:
+		logging.debug(str(message))
+
 
 def __buildHeaderObj():
 	global userAgent
