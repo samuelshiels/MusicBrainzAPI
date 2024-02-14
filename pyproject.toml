@@ -18,5 +18,6 @@ classifiers = [
   "Programming Language :: Python :: 3",
 ]
 dependencies = [
+  "jsonpickle",
   "rest_client_micro",
 ]

@@ -3,11 +3,10 @@ Provides a class and functions to manage sending requests to
 MusicBrainz. Calls will include an entire second of waiting
 to conform to MusicBrainz API standards
 """
-import jsonpickle
 import logging
 import os
-import json
 from pathlib import Path
+import jsonpickle
 from rest_client_micro.rest_client import RESTClient as RC
 from rest_client_micro.rest_object import RESTObject as RO
 from rest_client_micro.response import Response as R

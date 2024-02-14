@@ -1,5 +1,10 @@
-from src.music_brainz_api_micro.music_brainz_api import MusicBrainzAPI as MB
+"""
+Test cases for MusicBrainzAPI uses hardcoded ID for artist
+ At the Gates
+"""
+
 import jsonpickle
+from src.music_brainz_api_micro.music_brainz_api import MusicBrainzAPI as MB
 
 
 def get_artist_by_mbid():
