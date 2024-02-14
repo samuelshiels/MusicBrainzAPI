@@ -7,7 +7,7 @@ import jsonpickle
 from src.music_brainz_api_micro.music_brainz_api import MusicBrainzAPI as MB
 
 
-def get_artist_by_mbid():
+def test_get_artist_by_mbid():
     """
     Run a simple call with one mbid, confirm it is the correct
     artist by checking type and sort-name
