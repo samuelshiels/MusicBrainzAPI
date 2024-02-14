@@ -132,3 +132,4 @@ cache/
 data/
 
 main.py
+.vscode/
