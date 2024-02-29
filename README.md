@@ -32,3 +32,9 @@ Get just a list of release titles
 ```
 get_release_titles_by_artist(mbid)
 ```
+
+# Build
+```python
+python -m build
+python -m twine upload dist/*
+```

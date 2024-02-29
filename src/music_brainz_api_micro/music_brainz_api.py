@@ -9,7 +9,7 @@ from pathlib import Path
 import jsonpickle
 from rest_client_micro.rest_client import RESTClient as RC
 from rest_client_micro.rest_object import RESTObject as RO
-from rest_client_micro.response import Response as R
+from rest_client_micro import Response as R
 
 
 class MusicBrainzAPI():
@@ -20,10 +20,10 @@ class MusicBrainzAPI():
     app_name: str = 'MusicBrainzAPI'
     # sleep time, in ms, between any api calls, MB allows 1/s
     sleep: int = 1100
-    # cache time, in mins, for api calls to refresh cached data, we keep anything for 1 week
-    time: int = 10800
-    cache_dir: str = os.path.join(str(Path.home()), ".cache/", app_name)
-    config_dir = os.path.join(str(Path.home()), ".config/", app_name)
+    # cache time, in mins, for api calls to refresh cached data, we keep anything for 1 week 10800mins
+    time: int
+    cache_dir: str
+    config_dir: str
 
     user_agent: str = 'MusicBrainzAPI/0.1 (https://github.com/samuelshiels/MusicBrainzAPI)'
     root_url: str = 'https://musicbrainz.org/ws/2/'
@@ -36,17 +36,24 @@ class MusicBrainzAPI():
         if self.debug:
             logging.debug(str(message))
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self,
+                 config_dir: str = None,
+                 cache_dir: str = None,
+                 cache_refresh: int = 10800) -> None:
+        self.config_dir = config_dir or os.path.join(
+            str(Path.home()), ".config/", self.app_name)
+        self.cache_dir = cache_dir or os.path.join(
+            str(Path.home()), ".cache/", self.app_name)
+        self.time = cache_refresh
 
-    def _build_header_obj(self):
+    def _build_header_obj(self) -> dict:
         headers = {}
         headers['User-Agent'] = self.user_agent
         # we want responses in json, because fuck xml
         headers['Accept'] = 'application/json'
         return headers
 
-    def _run_rest(self, e, p, o, c):
+    def _run_rest(self, e: str, p: dict, o: str, c) -> R:
         self._debug("__runRest")
         rc = RC()
         rest_obj = RO(operation='get', endpoint=f'{self.root_url}{e}',
@@ -60,7 +67,7 @@ class MusicBrainzAPI():
         self._debug(f"{config}")
         return rc.execute(rest_obj)
 
-    def get_artist_by_mbid(self, mbid: str):
+    def get_artist_by_mbid(self, mbid: str) -> R:
         """ Using the MusicBrainz ID of an artist returns the full
         MusicBrainz response
 
@@ -74,12 +81,16 @@ class MusicBrainzAPI():
         self._debug("getArtistByMBID")
         return self._run_rest(f'artist/{mbid}', {'inc': 'aliases'}, mbid, 'artist')
 
-    def get_releases_by_artist(self, mbid: str):
+    def get_releases_by_artist(self, mbid: str) -> R:
         """contains property 'release-groups'"""
         return self._run_rest(f'artist/{mbid}', {'inc': 'aliases+release-groups'}, mbid, 'releases')
 
     def get_release_titles_by_artist(self, mbid: str) -> list[str] | list[R]:
-        """runs a getReleasesByArtist but returns the release titles of the response"""
+        """Runs a getReleasesByArtist but returns the release titles of the responses
+        
+        :param mbid: MusicBrainz ID including dashes
+        :returns: List of release titles for the associated artist        
+        """
         ret_val = []
         artist_releases = self.get_releases_by_artist(mbid)
         if artist_releases.error is True:
