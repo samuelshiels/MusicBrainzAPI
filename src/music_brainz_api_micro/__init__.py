@@ -12,7 +12,10 @@ Retrieve REST results from the MusicBrainz API
         artist_obj = jsonpickle.decode(artist.reponse)
         print(artist_obj["sort-name"])
 """
+from .music_brainz_api import MusicBrainzAPI
 
-VERSION = (0,1,1)
+VERSION = (0,1,2)
 
 VERSION_STRING = '.'.join(map(str, VERSION))
+
+MusicBrainzAPI
