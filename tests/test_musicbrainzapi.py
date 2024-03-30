@@ -6,6 +6,14 @@ Test cases for MusicBrainzAPI uses hardcoded ID for artist
 import jsonpickle
 from src.music_brainz_api_micro.music_brainz_api import MusicBrainzAPI as MB
 
+def test_get_recording_cover():
+    mb = MB()
+    recording_mbid = 'f4946271-1064-4496-8b9a-674212a7d0fa'
+    cover_response = mb.get_recording_cover(recording_mbid)
+    assert cover_response is not None
+    assert cover_response.cover_track_mbid == recording_mbid
+    assert cover_response.cover_track_artist == 'Children of Bodom'
+    assert cover_response.original_work_mbid == '19862b40-6a25-3499-8b8c-2a647007d1bb'
 
 def test_get_artist_by_mbid():
     """

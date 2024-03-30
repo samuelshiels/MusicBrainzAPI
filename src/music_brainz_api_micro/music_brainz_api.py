@@ -8,9 +8,10 @@ import os
 from pathlib import Path
 import jsonpickle
 from diskcache import Cache
-from rest_client_micro.rest_client import RESTClient as RC
-from rest_client_micro.rest_object import RESTObject as RO
 from rest_client_micro import Response as R
+from rest_client_micro import RESTClient as RC
+from rest_client_micro import RESTObject as RO
+from .cover_reponse import CoverResponse as CR
 
 
 class MusicBrainzAPI():
@@ -130,3 +131,28 @@ class MusicBrainzAPI():
         for release in thawed['release-groups']:
             ret_val.append(release['title'])
         return ret_val
+
+    def get_recording_cover(self, mbid: str) -> CR | None:
+        """_summary_
+
+
+        :param mbid: MusicBrainz ID including dashes
+        :returns: 
+        """
+        recording_rels = self._run_rest(
+            f"recording/{mbid}",
+            {"inc": "aliases+work-rels+artist-credits"},
+            mbid,
+            'recording'
+        )
+        if recording_rels.error is False:
+            thawed = jsonpickle.decode(recording_rels.response)
+            for r in thawed['relations']:
+                if 'cover' in r['attributes']:
+                    cr = CR()
+                    cr.cover_track_mbid = mbid
+                    cr.cover_track_title = thawed['title']
+                    cr.cover_track_artist = thawed['artist-credit'][0]['name']
+                    cr.original_work_mbid = r['work']['id']
+                    return cr
+        return None
