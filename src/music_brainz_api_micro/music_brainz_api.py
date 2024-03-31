@@ -98,8 +98,24 @@ class MusicBrainzAPI():
         self._debug(f"{config}")
         response = rc.execute(rest_obj)
         if self.use_cache:
-            self.cache.set(o, response)
+            self._set_cache(o, response)
+
         return response
+
+    def clear_cache(self) -> None:
+        """
+        Clears all keys from the diskcache database
+        """
+        self.cache.clear()
+
+    def _set_cache(self, key: str, response: R) -> None:
+        if response.error is False:
+            thawed = jsonpickle.decode(response.response)
+            if 'error' not in thawed:
+                self.cache.set(
+                    key=key,
+                    value=response,
+                    expire=self.time*60)
 
     def get_artist_by_mbid(self, mbid: str) -> R:
         """ Using the MusicBrainz ID of an artist returns the full
@@ -110,7 +126,7 @@ class MusicBrainzAPI():
             False 'response' property can be used
         """
         self._debug("getArtistByMBID")
-        return self._run_rest(f'artist/{mbid}', {'inc': 'aliases'}, mbid, 'artist')
+        return self._run_get(f'artist/{mbid}', {'inc': 'aliases'}, mbid, 'artist')
 
     def get_releases_by_artist(self, mbid: str) -> R:
         """contains property 'release-groups'"""
@@ -132,25 +148,27 @@ class MusicBrainzAPI():
             ret_val.append(release['title'])
         return ret_val
 
-    def get_recording_cover(self, mbid: str) -> CR | None:
-        """_summary_
+    def get_recording_cover(self, recording_mbid: str) -> CR | None:
+        """From a recording mbid determines if it is a recording
 
 
-        :param mbid: MusicBrainz ID including dashes
-        :returns: 
+        :param mbid: MusicBrainz recording ID including dashes
+        :returns: CoverResponse object or None
         """
-        recording_rels = self._run_rest(
-            f"recording/{mbid}",
+        recording_rels = self._run_get(
+            f"recording/{recording_mbid}",
             {"inc": "aliases+work-rels+artist-credits"},
-            mbid,
+            recording_mbid,
             'recording'
         )
         if recording_rels.error is False:
             thawed = jsonpickle.decode(recording_rels.response)
+            if 'relations' not in thawed:
+                return None
             for r in thawed['relations']:
                 if 'cover' in r['attributes']:
                     cr = CR()
-                    cr.cover_track_mbid = mbid
+                    cr.cover_track_mbid = recording_mbid
                     cr.cover_track_title = thawed['title']
                     cr.cover_track_artist = thawed['artist-credit'][0]['name']
                     cr.original_work_mbid = r['work']['id']

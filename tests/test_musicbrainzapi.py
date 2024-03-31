@@ -7,8 +7,12 @@ import jsonpickle
 from src.music_brainz_api_micro.music_brainz_api import MusicBrainzAPI as MB
 
 def test_get_recording_cover():
+    """
+    Checking if a recording is a cover
+    """
     mb = MB()
     recording_mbid = 'f4946271-1064-4496-8b9a-674212a7d0fa'
+    #recording_mbid = '23456'
     cover_response = mb.get_recording_cover(recording_mbid)
     assert cover_response is not None
     assert cover_response.cover_track_mbid == recording_mbid
