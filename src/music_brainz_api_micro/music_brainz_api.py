@@ -129,14 +129,31 @@ class MusicBrainzAPI():
         return self._run_get(f'artist/{mbid}', {'inc': 'aliases'}, mbid, 'artist')
 
     def get_releases_by_artist(self, mbid: str) -> R:
-        """contains property 'release-groups'"""
+        """Using the MusicBrainz ID of an artist returns the full
+        MusicBrainz response with `release-groups`
+
+        :param mbid: MusicBrainz ID including dashes
+        :returns: Response, check for error property True or False, if 
+            False 'response' property can be used
+        """
         return self._run_rest(f'artist/{mbid}', {'inc': 'aliases+release-groups'}, mbid, 'releases')
+
+    def get_release(self, mbid: str) -> R:
+        """Using the MusicBrainz ID of a release, returns the release response 
+        https://musicbrainz.org/doc/Release
+
+        :param mbid: MusicBrainz Id for the release, dashes included
+        :returns: Response, check for error property True or False, if 
+            False 'response' property can be used
+        """
+        return self._run_get(f"release/{mbid}", {'inc': 'aliases+artist-credits+labels+discids+recordings'}, mbid, 'releases')
 
     def get_release_titles_by_artist(self, mbid: str) -> list[str] | list[R]:
         """Runs a getReleasesByArtist but returns the release titles of the responses
 
         :param mbid: MusicBrainz ID including dashes
-        :returns: List of release titles for the associated artist        
+        :returns: List of release titles for the associated artist or the Response
+            with the error message     
         """
         ret_val = []
         artist_releases = self.get_releases_by_artist(mbid)
@@ -150,7 +167,6 @@ class MusicBrainzAPI():
 
     def get_recording_cover(self, recording_mbid: str) -> CR | None:
         """From a recording mbid determines if it is a recording
-
 
         :param mbid: MusicBrainz recording ID including dashes
         :returns: CoverResponse object or None
