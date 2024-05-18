@@ -148,6 +148,16 @@ class MusicBrainzAPI():
         """
         return self._run_get(f"release/{mbid}", {'inc': 'aliases+artist-credits+labels+discids+recordings'}, mbid, 'releases')
 
+    def get_release_group(self, mbid: str) -> R:
+        """Using the MusicBrainz ID of a release, returns the release response 
+        https://musicbrainz.org/doc/Release
+
+        :param mbid: MusicBrainz Id for the release, dashes included
+        :returns: Response, check for error property True or False, if 
+            False 'response' property can be used
+        """
+        return self._run_get(f"release-group/{mbid}", {'inc': 'aliases+artist-credits'}, mbid, 'releases')
+
     def get_release_titles_by_artist(self, mbid: str) -> list[str] | list[R]:
         """Runs a getReleasesByArtist but returns the release titles of the responses
 
