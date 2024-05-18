@@ -5,7 +5,7 @@ requires = [
 build-backend = "hatchling.build"
 [project]
 name = "music_brainz_api_micro"
-version = "0.1.6"
+version = "0.1.7"
 authors = [
   { name = "Samuel Shiels" },
 ]

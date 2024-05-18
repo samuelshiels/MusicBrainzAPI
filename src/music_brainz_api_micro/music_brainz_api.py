@@ -125,8 +125,7 @@ class MusicBrainzAPI():
         :returns: Response, check for error property True or False, if 
             False 'response' property can be used
         """
-        self._debug("getArtistByMBID")
-        return self._run_get(f'artist/{mbid}', {'inc': 'aliases'}, mbid, 'artist')
+        return self._run_get(f'artist/{mbid}', {'inc': 'aliases+release-groups'}, mbid, 'artist')
 
     def get_releases_by_artist(self, mbid: str) -> R:
         """Using the MusicBrainz ID of an artist returns the full
@@ -136,7 +135,7 @@ class MusicBrainzAPI():
         :returns: Response, check for error property True or False, if 
             False 'response' property can be used
         """
-        return self._run_rest(f'artist/{mbid}', {'inc': 'aliases+release-groups'}, mbid, 'releases')
+        return self._run_get(f'artist/{mbid}', {'inc': 'aliases+release-groups'}, mbid, 'releases')
 
     def get_release(self, mbid: str) -> R:
         """Using the MusicBrainz ID of a release, returns the release response 
