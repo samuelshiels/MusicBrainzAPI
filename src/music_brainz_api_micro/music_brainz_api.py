@@ -4,33 +4,17 @@ MusicBrainz. Calls will include an entire second of waiting
 to conform to MusicBrainz API standards
 """
 import logging
-import os
-from pathlib import Path
+
 import jsonpickle
-from diskcache import Cache
 from rest_client_micro import Response as R
-from rest_client_micro import RESTClient as RC
-from rest_client_micro import RESTObject as RO
+from rest_client_micro import BaseRESTAPI
 from .cover_reponse import CoverResponse as CR
 
 
-class MusicBrainzAPI():
+class MusicBrainzAPI(BaseRESTAPI):
     """
     Main class to run API calls against MusicBrainz
     """
-
-    app_name: str = 'MusicBrainzAPI'
-    # sleep time, in ms, between any api calls, MB allows 1/s
-    sleep: int = 1100
-    # 1 week 10800mins
-    time: int
-    cache: Cache
-    cache_dir: str
-    config_dir: str
-    use_cache: bool
-    force_cache: bool
-    user_agent: str = 'MusicBrainzAPI/0.1 (https://github.com/samuelshiels/MusicBrainzAPI)'
-    root_url: str = 'https://musicbrainz.org/ws/2/'
 
     logging.basicConfig(
         format='%(asctime)s | %(levelname)s | %(message)s', level=logging.DEBUG)
@@ -43,7 +27,7 @@ class MusicBrainzAPI():
     def __init__(self,
                  config_dir: str = None,
                  cache_dir: str = None,
-                 cache_refresh_mins: int = 10800,
+                 cache_timeout_mins: int = 10800,
                  force_cache: bool = False,
                  use_cache: bool = True) -> None:
         """Initialise a MusicBrainzAPI instance
@@ -57,65 +41,14 @@ class MusicBrainzAPI():
         :param use_cache: Store and read results from cache
             (default True)
         """
-        self.config_dir = config_dir or os.path.join(
-            str(Path.home()), ".config/", self.app_name)
-        self.cache_dir = cache_dir or os.path.join(
-            str(Path.home()), ".cache/", self.app_name)
-        self.time = cache_refresh_mins
-        self.force_cache = force_cache
-        self.use_cache = use_cache
-        self.cache = Cache(self.cache_dir)
+        app_name = 'MusicBrainzAPI'
+        root_endpoint = 'https://musicbrainz.org/ws/2/'
+        user_agent = 'MusicBrainzAPI/0.1 (https://github.com/samuelshiels/MusicBrainzAPI)'
+        sleep_ms = 1100
+        basic_auth = None
 
-    def _build_header_obj(self) -> dict:
-        headers = {}
-        headers['User-Agent'] = self.user_agent
-        # we want responses in json, because fuck xml
-        headers['Accept'] = 'application/json'
-        return headers
-
-    def _run_get(self, e: str, p: dict, o: str, c) -> R:
-        if self.force_cache:
-            return self._run_rest(e, p, o, c)
-
-        if self.use_cache:
-            cache_result = self.cache.get(o)
-            if cache_result is not None:
-                return cache_result
-            else:
-                return self._run_rest(e, p, o, c)
-
-    def _run_rest(self, e: str, p: dict, o: str, c) -> R:
-        self._debug("__runRest")
-        rc = RC()
-        rest_obj = RO(operation='get', endpoint=f'{self.root_url}{e}',
-                      params=p, headers=self._build_header_obj(), payload={})
-        config = {}
-        config['output'] = o + '.json'
-        config['cache'] = self.cache_dir + c
-        config['time'] = self.time
-        config['sleep'] = self.sleep
-        config['rest'] = rest_obj
-        self._debug(f"{config}")
-        response = rc.execute(rest_obj)
-        if self.use_cache:
-            self._set_cache(o, response)
-
-        return response
-
-    def clear_cache(self) -> None:
-        """
-        Clears all keys from the diskcache database
-        """
-        self.cache.clear()
-
-    def _set_cache(self, key: str, response: R) -> None:
-        if response.error is False:
-            thawed = jsonpickle.decode(response.response)
-            if 'error' not in thawed:
-                self.cache.set(
-                    key=key,
-                    value=response,
-                    expire=self.time*60)
+        super().__init__(app_name, root_endpoint, user_agent, sleep_ms, basic_auth,
+                         config_dir, cache_dir, cache_timeout_mins, force_cache, use_cache)
 
     def get_artist_by_mbid(self, mbid: str) -> R:
         """ Using the MusicBrainz ID of an artist returns the full

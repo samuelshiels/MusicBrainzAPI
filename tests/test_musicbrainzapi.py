@@ -11,6 +11,7 @@ def test_get_recording_cover():
     Checking if a recording is a cover
     """
     mb = MB()
+    mb.root_endpoint = "http://127.0.0.1:3000/"
     recording_mbid = 'f4946271-1064-4496-8b9a-674212a7d0fa'
     #recording_mbid = '23456'
     cover_response = mb.get_recording_cover(recording_mbid)
@@ -25,6 +26,7 @@ def test_get_artist_by_mbid():
     artist by checking type and sort-name
     """
     mb = MB()
+    mb.root_endpoint = "http://127.0.0.1:3000/"
     artist_mbid_list = ['35f92c4a-69d0-4ed1-ab9e-05259db89d14']
     artist = mb.get_artist_by_mbid(artist_mbid_list[0])
     assert artist.error is False
@@ -40,6 +42,7 @@ def test_get_release_titles_by_artist():
     of the returned array
     """
     mb = MB()
+    mb.root_endpoint = "http://127.0.0.1:3000/"
     artist_mbid_list = ['35f92c4a-69d0-4ed1-ab9e-05259db89d14']
     releases = mb.get_release_titles_by_artist(artist_mbid_list[0])
     assert len(releases) > 24

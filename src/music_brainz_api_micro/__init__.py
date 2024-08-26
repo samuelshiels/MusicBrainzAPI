@@ -14,7 +14,7 @@ Retrieve REST results from the MusicBrainz API
 """
 from .music_brainz_api import MusicBrainzAPI
 
-VERSION = (0,1,4)
+VERSION = (0,1,8)
 
 VERSION_STRING = '.'.join(map(str, VERSION))
 
