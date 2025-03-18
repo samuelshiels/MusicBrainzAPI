@@ -58,7 +58,7 @@ class MusicBrainzAPI(BaseRESTAPI):
         :returns: Response, check for error property True or False, if 
             False 'response' property can be used
         """
-        return self._run_call(f'artist/{mbid}', {'inc': 'aliases+release-groups'}, "get", 'artist')
+        return self._run_call(f'artist/{mbid}', {'inc': 'aliases+release-groups'}, "get", mbid)
 
     def get_releases_by_artist(self, mbid: str) -> R:
         """Using the MusicBrainz ID of an artist returns the full
@@ -68,7 +68,7 @@ class MusicBrainzAPI(BaseRESTAPI):
         :returns: Response, check for error property True or False, if 
             False 'response' property can be used
         """
-        return self._run_call(f'artist/{mbid}', {'inc': 'aliases+release-groups'}, "get", 'releases')
+        return self._run_call(f'artist/{mbid}', {'inc': 'aliases+release-groups'}, "get", mbid)
 
     def get_release(self, mbid: str) -> R:
         """Using the MusicBrainz ID of a release, returns the release response 
@@ -78,7 +78,7 @@ class MusicBrainzAPI(BaseRESTAPI):
         :returns: Response, check for error property True or False, if 
             False 'response' property can be used
         """
-        return self._run_call(f"release/{mbid}", {'inc': 'aliases+artist-credits+labels+discids+recordings'}, "get", 'releases')
+        return self._run_call(f"release/{mbid}", {'inc': 'aliases+artist-credits+labels+discids+recordings'}, "get", mbid)
 
     def get_release_group(self, mbid: str) -> R:
         """Using the MusicBrainz ID of a release, returns the release response 
@@ -88,7 +88,7 @@ class MusicBrainzAPI(BaseRESTAPI):
         :returns: Response, check for error property True or False, if 
             False 'response' property can be used
         """
-        return self._run_call(f"release-group/{mbid}", {'inc': 'aliases+artist-credits'}, "get", 'releases')
+        return self._run_call(f"release-group/{mbid}", {'inc': 'aliases+artist-credits'}, "get", mbid)
 
     def get_release_titles_by_artist(self, mbid: str) -> list[str] | list[R]:
         """Runs a getReleasesByArtist but returns the release titles of the responses
@@ -117,7 +117,7 @@ class MusicBrainzAPI(BaseRESTAPI):
             f"recording/{recording_mbid}",
             {"inc": "aliases+work-rels+artist-credits"},
             "get",
-            'recording'
+            recording_mbid
         )
         if recording_rels.error is False:
             thawed = jsonpickle.decode(recording_rels.response)
